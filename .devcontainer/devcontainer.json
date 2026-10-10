@@ -1,0 +1,16 @@
+{
+  "name": "Valorant Voice ASR",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/apt-packages:1": {
+      "packages": "ffmpeg libsndfile1"
+    }
+  },
+  "postCreateCommand": "pip install --quiet faster-whisper scipy numpy pygame requests deep-translator",
+  "runArgs": ["--shm-size=8g"],
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "ms-python.vscode-pylance"]
+    }
+  }
+}

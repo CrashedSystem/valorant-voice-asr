@@ -1,0 +1,62 @@
+name: ASR Full Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'Whisper model (tiny/base/small/medium/large-v3)'
+        required: true
+        default: 'small'
+      chunk:
+        description: 'Chunk index (0-based) to process'
+        required: true
+        default: '0'
+      total_chunks:
+        description: 'Total number of chunks to split work'
+        required: true
+        default: '20'
+
+jobs:
+  asr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: mcr.microsoft.com/devcontainers/python:3.12
+      options: --shm-size=8g
+    env:
+      HF_HUB_DISABLE_SYMLINKS_WARNING: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg libsndfile1
+
+      - name: Install Python deps
+        run: |
+          pip install --quiet faster-whisper scipy numpy pygame requests deep-translator
+
+      - name: Run ASR
+        env:
+          MODEL: ${{ github.event.inputs.model }}
+          CHUNK: ${{ github.event.inputs.chunk }}
+          TOTAL: ${{ github.event.inputs.total_chunks }}
+        run: |
+          python asr_full.py
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: asr-result-chunk-${{ github.event.inputs.chunk }}
+          path: sounds_kr/asr_full.json
+          retention-days: 7

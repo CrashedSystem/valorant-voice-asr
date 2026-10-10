@@ -1,0 +1,6 @@
+faster-whisper==1.2.1
+scipy==1.13.1
+numpy==1.26.4
+pygame==2.6.1
+requests==2.32.3
+deep-translator==2.0.1
